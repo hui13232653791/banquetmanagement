@@ -1,0 +1,49 @@
+## 端口号 上下文路径
+server:
+  port: 8080
+  servlet:
+    context-path: /wang
+
+## 数据源配置
+spring:
+  datasource:
+    type: com.mchange.v2.c3p0.ComboPooledDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.107.81.81:3306/banquetmanagement?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+    username: root
+    password: xiaopao@1891
+
+  ## freemarker
+  freemarker:
+    #freemarker数据格式化数值超过4为时会有逗号，所以当ID超过4位时value取的处理是String类型的,而方法是Integer类型,解决方法如下
+    settings:
+      number_format: 0.##
+    suffix: .ftl
+    content-type: text/html
+    charset: UTF-8
+    template-loader-path: classpath:/views/
+
+  ## 启用热部署
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/java
+
+## mybatis 配置
+mybatis:
+  mapper-locations: classpath:/mappers/*.xml
+  type-aliases-package: com.wangyh.crm.vo;com.wangyh.crm.query;com.wangyh.crm.dto
+  configuration:
+    map-underscore-to-camel-case: true
+
+## pageHelper 分页
+pagehelper:
+  helper-dialect: mysql
+
+## 设置 dao 日志打印级别
+logging:
+  level:
+    com:
+      wangyh:
+        banquet:
+          dao: debug

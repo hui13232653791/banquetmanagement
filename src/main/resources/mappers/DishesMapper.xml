@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wangyh.banquet.dao.DishesMapper" >
+  <resultMap id="BaseResultMap" type="com.wangyh.banquet.vo.Dishes" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="dishes_name" property="dishesName" jdbcType="VARCHAR" />
+    <result column="dishes_price" property="dishesPrice" jdbcType="VARCHAR" />
+    <result column="dishes_type" property="dishesType" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, dishes_name, dishes_price, dishes_type, create_date, update_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from dishes
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from dishes
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wangyh.banquet.vo.Dishes" >
+    insert into dishes (id, dishes_name, dishes_price, 
+      dishes_type, create_date, update_date
+      )
+    values (#{id,jdbcType=INTEGER}, #{dishesName,jdbcType=VARCHAR}, #{dishesPrice,jdbcType=VARCHAR}, 
+      #{dishesType,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{updateDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wangyh.banquet.vo.Dishes" >
+    insert into dishes
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="dishesName != null" >
+        dishes_name,
+      </if>
+      <if test="dishesPrice != null" >
+        dishes_price,
+      </if>
+      <if test="dishesType != null" >
+        dishes_type,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="updateDate != null" >
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="dishesName != null" >
+        #{dishesName,jdbcType=VARCHAR},
+      </if>
+      <if test="dishesPrice != null" >
+        #{dishesPrice,jdbcType=VARCHAR},
+      </if>
+      <if test="dishesType != null" >
+        #{dishesType,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wangyh.banquet.vo.Dishes" >
+    update dishes
+    <set >
+      <if test="dishesName != null" >
+        dishes_name = #{dishesName,jdbcType=VARCHAR},
+      </if>
+      <if test="dishesPrice != null" >
+        dishes_price = #{dishesPrice,jdbcType=VARCHAR},
+      </if>
+      <if test="dishesType != null" >
+        dishes_type = #{dishesType,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wangyh.banquet.vo.Dishes" >
+    update dishes
+    set dishes_name = #{dishesName,jdbcType=VARCHAR},
+      dishes_price = #{dishesPrice,jdbcType=VARCHAR},
+      dishes_type = #{dishesType,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!-- 多条件查询 -->
+  <select id="selectByParams" parameterType="com.wangyh.banquet.query.DishesQuery" resultType="com.wangyh.banquet.vo.Dishes">
+    select
+    d.id, d.dishes_name, d.dishes_price, dt.dishes_type, d.create_date, d.update_date
+    from
+    dishes d
+    left join dishes_type dt
+    on d.dishes_type=dt.id
+    <where>
+      <!-- 菜品名称查询 -->
+      <if test="null != dishesName and dishesName != ''">
+        and d.dishes_name like concat('%',#{dishesName},'%')
+      </if>
+      <!-- 根据菜品价格查询 -->
+      <if test="null != ldishesPrice">
+        and d.dishes_price &gt;= #{ldishesPrice}
+      </if>
+      <!-- 根据菜品价格查询 -->
+      <if test="null != gdishesPrice">
+        and d.dishes_price &lt;= #{gdishesPrice}
+      </if>
+      <!-- 根据菜品价格查询 -->
+      <if test="null != ldishesPrice and null != gdishesPrice">
+        and d.dishes_price between #{ldishesPrice} and #{gdishesPrice}
+      </if>
+      <!-- 根据菜品类别查询 -->
+      <if test="null != dishesType and dishesType != ''">
+        and dt.dishes_type = #{dishesType}
+      </if>
+    </where>
+    order by d.id desc
+  </select>
+
+  <!-- 删除菜品 -->
+  <delete id="deleteBatch">
+    delete from
+    dishes
+    where
+    id in
+    <foreach collection="array" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </delete>
+
+  <!-- 查询所有的菜品列表 -->
+  <select id="queryAllDishes" resultType="com.wangyh.banquet.model.TreeDishes">
+    select
+        id,dishes_type as pId,dishes_name as name
+    from
+        dishes
+  </select>
+
+
+</mapper>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wangyh.banquet.dao.PackageMapper" >
+  <resultMap id="BaseResultMap" type="com.wangyh.banquet.vo.Package" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="package_name" property="packageName" jdbcType="VARCHAR" />
+    <result column="package_price" property="packagePrice" jdbcType="INTEGER" />
+    <result column="dishes_number" property="dishesNumber" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, package_name, package_price, dishes_number, create_date, update_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from package
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from package
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wangyh.banquet.vo.Package" >
+    insert into package (id, package_name, package_price, 
+      dishes_number, create_date, update_date
+      )
+    values (#{id,jdbcType=INTEGER}, #{packageName,jdbcType=VARCHAR}, #{packagePrice,jdbcType=INTEGER}, 
+      #{dishesNumber,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{updateDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wangyh.banquet.vo.Package" >
+    insert into package
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="packageName != null" >
+        package_name,
+      </if>
+      <if test="packagePrice != null" >
+        package_price,
+      </if>
+      <if test="dishesNumber != null" >
+        dishes_number,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="updateDate != null" >
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="packageName != null" >
+        #{packageName,jdbcType=VARCHAR},
+      </if>
+      <if test="packagePrice != null" >
+        #{packagePrice,jdbcType=INTEGER},
+      </if>
+      <if test="dishesNumber != null" >
+        #{dishesNumber,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wangyh.banquet.vo.Package" >
+    update package
+    <set >
+      <if test="packageName != null" >
+        package_name = #{packageName,jdbcType=VARCHAR},
+      </if>
+      <if test="packagePrice != null" >
+        package_price = #{packagePrice,jdbcType=INTEGER},
+      </if>
+      <if test="dishesNumber != null" >
+        dishes_number = #{dishesNumber,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wangyh.banquet.vo.Package" >
+    update package
+    set package_name = #{packageName,jdbcType=VARCHAR},
+      package_price = #{packagePrice,jdbcType=INTEGER},
+      dishes_number = #{dishesNumber,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!-- 多条件查询 -->
+  <select id="selectByParams" parameterType="com.wangyh.banquet.query.PackageQuery" resultType="com.wangyh.banquet.vo.Package">
+    select
+        <include refid="Base_Column_List"></include>
+    from
+        package
+    <where>
+      <!-- 套餐名称查询 -->
+      <if test="null != packageName and packageName != ''">
+        and package_name like concat('%',#{packageName},'%')
+      </if>
+      <!-- 根据套餐价格查询 -->
+      <if test="null != lpackagePrice">
+        and package_price &gt;= #{lpackagePrice}
+      </if>
+      <!-- 根据套餐价格查询 -->
+      <if test="null != gpackagePrice">
+        and package_price &lt;= #{gpackagePrice}
+      </if>
+      <!-- 根据套餐价格查询 -->
+      <if test="null != lpackagePrice and null != gpackagePrice">
+        and package_price between #{lpackagePrice} and #{gpackagePrice}
+      </if>
+    </where>
+  </select>
+
+  <!-- 删除套餐 -->
+  <delete id="deleteBatch">
+    delete from
+        package
+    where
+      id in
+      <foreach collection="array" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+  </delete>
+
+  <!-- 查询所有套餐 -->
+  <select id="queryAllPackage" parameterType="int" resultType="java.util.Map">
+    select
+        p.id,p.package_name,
+        case
+            when IFNULL(temp.p_id,0)=0 THEN ''
+            else 'selected'
+        end
+        as 'selected'
+    from
+        package p
+    left join (select o.p_id from `order` o where o.id = #{orderId}) temp
+    on p.id = temp.p_id
+  </select>
+
+</mapper>

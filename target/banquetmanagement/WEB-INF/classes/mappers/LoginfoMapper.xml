@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wangyh.banquet.dao.LoginfoMapper" >
+  <resultMap id="BaseResultMap" type="com.wangyh.banquet.vo.Loginfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    <result column="login_ip" property="loginIp" jdbcType="VARCHAR" />
+    <result column="login_date" property="loginDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, login_name, login_ip, login_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from loginfo
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from loginfo
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wangyh.banquet.vo.Loginfo" >
+    insert into loginfo (id, login_name, login_ip, 
+      login_date)
+    values (#{id,jdbcType=INTEGER}, #{loginName,jdbcType=VARCHAR}, #{loginIp,jdbcType=VARCHAR}, 
+      #{loginDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wangyh.banquet.vo.Loginfo" >
+    insert into loginfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="loginName != null" >
+        login_name,
+      </if>
+      <if test="loginIp != null" >
+        login_ip,
+      </if>
+      <if test="loginDate != null" >
+        login_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="loginName != null" >
+        #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginIp != null" >
+        #{loginIp,jdbcType=VARCHAR},
+      </if>
+      <if test="loginDate != null" >
+        #{loginDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wangyh.banquet.vo.Loginfo" >
+    update loginfo
+    <set >
+      <if test="loginName != null" >
+        login_name = #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginIp != null" >
+        login_ip = #{loginIp,jdbcType=VARCHAR},
+      </if>
+      <if test="loginDate != null" >
+        login_date = #{loginDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wangyh.banquet.vo.Loginfo" >
+    update loginfo
+    set login_name = #{loginName,jdbcType=VARCHAR},
+      login_ip = #{loginIp,jdbcType=VARCHAR},
+      login_date = #{loginDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!-- 多条件查询 -->
+  <select id="selectByParams" parameterType="com.wangyh.banquet.query.LoginfoQuery" resultType="com.wangyh.banquet.vo.Loginfo">
+    select
+        <include refid="Base_Column_List"></include>
+    from
+        loginfo
+    <where>
+      <!-- 登录名查询 -->
+      <if test="null != loginName and loginName != ''">
+        and login_name like concat('%',#{loginName},'%')
+      </if>
+      <!-- 登录IP查询 -->
+      <if test="null != loginIp and loginIp != ''">
+        and login_ip like concat('%',#{loginIp},'%')
+      </if>
+      <!-- 根据登录时间查询 -->
+      <if test="null != startTime">
+        and login_date &gt; #{startTime}
+      </if>
+      <!-- 根据登录时间查询 -->
+      <if test="null != endTime">
+        and login_date &lt; #{endTime}
+      </if>
+      <!-- 根据登录时间查询 -->
+      <if test="null != startTime and null != endTime">
+        and login_date between #{startTime} and #{endTime}
+      </if>
+    </where>
+        order by login_date desc
+  </select>
+
+  <!-- 删除登录日志 -->
+  <delete id="deleteBatch">
+    delete from
+        loginfo
+    where
+        id
+    in
+      <foreach collection="array" item="id" open="(" close=")" separator=",">
+        #{id}
+      </foreach>
+  </delete>
+
+
+</mapper>

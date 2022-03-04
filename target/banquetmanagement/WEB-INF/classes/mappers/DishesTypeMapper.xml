@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wangyh.banquet.dao.DishesTypeMapper" >
+  <resultMap id="BaseResultMap" type="com.wangyh.banquet.vo.DishesType" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="dishes_type" property="dishesType" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, dishes_type
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from dishes_type
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from dishes_type
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wangyh.banquet.vo.DishesType" >
+    insert into dishes_type (id, dishes_type
+      )
+    values (#{id,jdbcType=INTEGER}, #{dishesType,jdbcType=VARCHAR}}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wangyh.banquet.vo.DishesType" >
+    insert into dishes_type
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="dishesType != null" >
+        dishes_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="dishesType != null" >
+        #{dishesType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wangyh.banquet.vo.DishesType" >
+    update dishes_type
+    <set >
+      <if test="dishesType != null" >
+        dishes_type = #{dishesType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wangyh.banquet.vo.DishesType" >
+    update dishes_type
+    set dishes_type = #{dishesType,jdbcType=VARCHAR},
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!-- 多条件查询 -->
+  <select id="selectByParams" parameterType="com.wangyh.banquet.query.DishesTypeQuery" resultType="com.wangyh.banquet.vo.DishesType">
+    select
+        <include refid="Base_Column_List"></include>
+    from
+        dishes_type
+    <where>
+      <!-- 菜品类别名称查询 -->
+      <if test="null != dishesType and dishesType != ''">
+        and dishes_type like concat('%',#{dishesType},'%')
+      </if>
+    </where>
+  </select>
+
+  <!-- 查询菜品类别列表-分配菜品tree使用 -->
+  <select id="queryDishesType" resultType="com.wangyh.banquet.model.TreeDishes">
+    select
+        id,dishes_type as name
+    from
+        dishes_type
+  </select>
+
+
+  <!-- 查询所有菜品类别-选择框使用 -->
+  <select id="queryAllDishesType" parameterType="int" resultType="java.util.Map">
+    select
+        dt.id,dt.dishes_type,
+        case
+            when IFNULL(temp.dishes_type,0)=0 THEN ''
+            else 'selected'
+        end
+        as 'selected'
+    from
+        dishes_type dt
+    left join (select d.dishes_type from dishes d where d.id = #{dishesId}) temp
+    on dt.id = temp.dishes_type
+  </select>
+
+  <!-- 删除菜品类别 -->
+  <delete id="deleteBatch">
+    delete from
+        dishes_type
+    where
+    id in
+    <foreach collection="array" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </delete>
+
+  <!-- 统计菜品类别的菜品数量 -->
+  <select id="countDishesNumberByDishesType" resultType="map">
+    SELECT dt.dishes_type,count(d.dishes_name) as count
+    from
+        dishes_type dt
+    LEFT JOIN dishes d on d.dishes_type=dt.id
+    GROUP BY dt.dishes_type
+  </select>
+
+</mapper>
